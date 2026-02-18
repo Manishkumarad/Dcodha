@@ -1,0 +1,1082 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>DCODHA</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Inter:wght@300;400;500&display=swap" rel="stylesheet"/>
+<style>
+/* ═══════════════════ RESET & ROOT ═══════════════════ */
+:root {
+  --bg:#0a0a0a; --bg-light:#111; --bg-card:#161616;
+  --accent:#c8a86e; --accent-dim:rgba(200,168,110,.15);
+  --text:#e8e4df; --text-dim:#6b6560; --white:#f5f0eb;
+  --red:#e05555; --green:#55c47a;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;min-height:100vh;overflow-x:hidden}
+a{text-decoration:none;color:inherit}
+button{font-family:'Inter',sans-serif}
+input{font-family:'Inter',sans-serif}
+
+/* ═══════════════════ TOAST ═══════════════════ */
+#toast-wrap{position:fixed;top:24px;right:24px;z-index:9999;display:flex;flex-direction:column;gap:10px;pointer-events:none}
+.toast{background:#1e1e1e;border:1px solid rgba(200,168,110,.3);color:var(--white);padding:14px 22px;border-radius:6px;font-size:13px;pointer-events:all;animation:toastIn .3s ease;max-width:320px}
+.toast.error{border-color:var(--red)}
+.toast.success{border-color:var(--green)}
+@keyframes toastIn{from{opacity:0;transform:translateY(-12px)}to{opacity:1;transform:translateY(0)}}
+
+/* ═══════════════════ NAV ═══════════════════ */
+nav{position:fixed;top:0;width:100%;z-index:100;padding:22px 48px;display:flex;justify-content:space-between;align-items:center;background:rgba(10,10,10,.92);backdrop-filter:blur(8px);border-bottom:1px solid rgba(200,168,110,.08);transition:.3s}
+.nav-logo{font-family:'Cormorant Garamond',serif;font-size:24px;font-weight:300;letter-spacing:8px;color:var(--white);cursor:pointer}
+.nav-links{display:flex;gap:32px;align-items:center}
+.nav-links a{color:var(--text-dim);font-size:11px;letter-spacing:2px;text-transform:uppercase;cursor:pointer;transition:color .3s;position:relative}
+.nav-links a:hover,
+.nav-links a.active{color:var(--accent)}
+.nav-cart{position:relative;cursor:pointer;color:var(--text-dim);font-size:11px;letter-spacing:2px;text-transform:uppercase;transition:color .3s}
+.nav-cart:hover{color:var(--accent)}
+.cart-badge{position:absolute;top:-8px;right:-18px;background:var(--accent);color:#0a0a0a;font-size:9px;font-weight:600;width:18px;height:18px;border-radius:50%;display:flex;align-items:center;justify-content:center}
+.nav-auth{font-size:11px;letter-spacing:2px;text-transform:uppercase;color:var(--text-dim);cursor:pointer;transition:color .3s}
+.nav-auth:hover{color:var(--accent)}
+
+/* ═══════════════════ PAGE SECTIONS (hidden by default) ═══════════════════ */
+.page{display:none;min-height:100vh;padding-top:80px}
+.page.active{display:block}
+
+/* ═══════════════════ HERO ═══════════════════ */
+#page-home .hero{height:calc(100vh - 0px);position:relative;display:flex;align-items:flex-end;padding:0 48px 100px;overflow:hidden}
+.hero-bg{position:absolute;inset:0;background:url('https://images.unsplash.com/photo-1552902865-b72c031ac5ea?w=1600&q=80') center/cover no-repeat;filter:brightness(.35) saturate(.7)}
+.hero-bg::after{content:'';position:absolute;inset:0;background:linear-gradient(to top,var(--bg) 0%,transparent 50%),linear-gradient(to right,rgba(10,10,10,.6) 0%,transparent 60%)}
+.geo{position:absolute;border:1px solid var(--accent);opacity:.12;border-radius:50%}
+.geo-1{width:300px;height:300px;top:12%;right:10%;animation:floatG 8s ease-in-out infinite}
+.geo-2{width:180px;height:180px;top:55%;right:25%;border-radius:0;transform:rotate(45deg);animation:floatG 11s ease-in-out infinite reverse}
+@keyframes floatG{0%,100%{transform:translateY(0)}50%{transform:translateY(-20px)}}
+.hero-content{position:relative;z-index:2;max-width:700px}
+.hero-tag{font-size:10px;letter-spacing:4px;text-transform:uppercase;color:var(--accent);margin-bottom:28px;display:flex;align-items:center;gap:16px}
+.hero-tag::before{content:'';width:40px;height:1px;background:var(--accent)}
+.hero-content h1{font-family:'Cormorant Garamond',serif;font-size:clamp(56px,9vw,110px);font-weight:300;color:var(--white);line-height:1}
+.hero-content h1 em{font-style:italic;color:var(--accent)}
+.hero-sub{margin-top:28px;font-size:13px;color:var(--text-dim);line-height:1.8;max-width:380px;font-weight:300}
+.hero-cta{margin-top:44px;display:inline-flex;align-items:center;gap:12px;color:var(--white);font-size:11px;letter-spacing:3px;text-transform:uppercase;border-bottom:1px solid var(--accent);padding-bottom:8px;cursor:pointer;transition:gap .3s,color .3s}
+.hero-cta:hover{gap:24px;color:var(--accent)}
+
+/* ═══════════════════ MARQUEE ═══════════════════ */
+.marquee-wrap{padding:40px 0;border-top:1px solid rgba(200,168,110,.1);border-bottom:1px solid rgba(200,168,110,.1);overflow:hidden;white-space:nowrap}
+.marquee{display:inline-flex;animation:marq 30s linear infinite}
+.marquee span{font-family:'Cormorant Garamond',serif;font-size:13px;font-weight:300;letter-spacing:6px;text-transform:uppercase;color:var(--text-dim);padding:0 48px}
+.marquee .dot{color:var(--accent);margin:0 8px}
+@keyframes marq{0%{transform:translateX(0)}100%{transform:translateX(-50%)}}
+
+/* ═══════════════════ SECTION HEADER ═══════════════════ */
+.section-header{display:flex;justify-content:space-between;align-items:flex-end;margin-bottom:60px;flex-wrap:wrap;gap:20px}
+.section-header h2{font-family:'Cormorant Garamond',serif;font-size:clamp(32px,4.5vw,52px);font-weight:300;color:var(--white);line-height:1.1}
+.section-header p{font-size:12px;color:var(--text-dim);max-width:300px;line-height:1.8;text-align:right}
+
+/* ═══════════════════ PRODUCT GRID ═══════════════════ */
+.products-section{padding:100px 48px}
+.filter-bar{display:flex;gap:12px;flex-wrap:wrap;margin-bottom:40px;align-items:center}
+.filter-btn{background:transparent;border:1px solid rgba(200,168,110,.2);color:var(--text-dim);padding:8px 18px;border-radius:20px;font-size:11px;letter-spacing:1.5px;text-transform:uppercase;cursor:pointer;transition:all .25s}
+.filter-btn:hover,.filter-btn.active{border-color:var(--accent);color:var(--accent);background:var(--accent-dim)}
+.search-input{background:rgba(255,255,255,.04);border:1px solid rgba(200,168,110,.15);color:var(--text);padding:8px 16px;border-radius:20px;font-size:12px;outline:none;width:200px;margin-left:auto;transition:border-color .3s}
+.search-input::placeholder{color:var(--text-dim)}
+.search-input:focus{border-color:var(--accent)}
+
+.product-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:24px}
+.product-card{background:var(--bg-card);border:1px solid rgba(200,168,110,.08);border-radius:6px;overflow:hidden;cursor:pointer;transition:transform .3s,border-color .3s}
+.product-card:hover{transform:translateY(-4px);border-color:rgba(200,168,110,.25)}
+.product-card-img{height:300px;background:#1a1815;position:relative;overflow:hidden}
+.product-card-img img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;transition:transform .6s cubic-bezier(.25,.46,.45,.94)}
+.product-card:hover .product-card-img img{transform:scale(1.06)}
+.product-card-img .shape{position:absolute;inset:0;background:linear-gradient(to top,rgba(10,10,10,.5) 0%,transparent 50%);z-index:1;pointer-events:none}
+.product-card-img .badge{position:absolute;top:12px;left:12px;background:var(--accent);color:#0a0a0a;font-size:9px;font-weight:600;letter-spacing:1.5px;text-transform:uppercase;padding:5px 12px;border-radius:12px}
+.product-card-body{padding:20px}
+.product-card-body .cat-label{font-size:9px;letter-spacing:2px;text-transform:uppercase;color:var(--accent);margin-bottom:6px}
+.product-card-body h3{font-family:'Cormorant Garamond',serif;font-size:20px;font-weight:300;color:var(--white);margin-bottom:8px}
+.product-card-body .price-row{display:flex;align-items:center;gap:12px}
+.product-card-body .price{color:var(--accent);font-size:16px;font-weight:400}
+.product-card-body .price-old{color:var(--text-dim);font-size:13px;text-decoration:line-through}
+
+/* ═══════════════════ PRODUCT DETAIL ═══════════════════ */
+#page-product .product-detail{display:grid;grid-template-columns:1fr 1fr;gap:80px;padding:100px 48px;max-width:1200px;margin:0 auto}
+.product-detail-img{height:520px;background:#1a1815;border-radius:8px;position:relative;overflow:hidden}
+.product-detail-img img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:1}
+.product-detail-img .shape{display:none}
+@keyframes pulse{0%,100%{transform:translate(-50%,-50%) scale(1);opacity:.6}50%{transform:translate(-50%,-50%) scale(1.1);opacity:1}}
+.product-detail-img .badge{position:absolute;top:16px;right:16px;background:var(--accent);color:#0a0a0a;font-size:9px;font-weight:600;letter-spacing:1.5px;text-transform:uppercase;padding:6px 14px;border-radius:14px}
+.product-detail-info .tag{font-size:10px;letter-spacing:3px;text-transform:uppercase;color:var(--accent);margin-bottom:16px}
+.product-detail-info h1{font-family:'Cormorant Garamond',serif;font-size:48px;font-weight:300;color:var(--white);line-height:1.1}
+.product-detail-info .price-row{margin-top:18px;display:flex;align-items:center;gap:16px}
+.product-detail-info .price{font-family:'Cormorant Garamond',serif;font-size:30px;color:var(--accent);font-weight:300}
+.product-detail-info .price-old{font-size:16px;color:var(--text-dim);text-decoration:line-through}
+.product-detail-info .desc{font-size:13px;color:var(--text-dim);line-height:1.9;margin-top:22px;max-width:420px}
+.product-detail-info .label{font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--text-dim);margin-top:28px;margin-bottom:10px}
+.size-row{display:flex;gap:10px;flex-wrap:wrap}
+.size-btn{width:44px;height:44px;border:1px solid rgba(200,168,110,.2);background:transparent;color:var(--text-dim);font-size:12px;cursor:pointer;transition:all .25s;border-radius:4px}
+.size-btn:hover,.size-btn.active{border-color:var(--accent);color:var(--accent);background:var(--accent-dim)}
+.btn-primary{display:inline-flex;align-items:center;justify-content:center;gap:10px;background:var(--accent);color:#0a0a0a;font-size:11px;font-weight:500;letter-spacing:2.5px;text-transform:uppercase;padding:15px 38px;border:none;border-radius:4px;cursor:pointer;transition:background .3s,transform .2s;margin-top:32px}
+.btn-primary:hover{background:#d4b87a;transform:translateY(-2px)}
+.btn-primary:disabled{opacity:.5;cursor:not-allowed;transform:none}
+.btn-secondary{background:transparent;border:1px solid rgba(200,168,110,.3);color:var(--accent);font-size:11px;letter-spacing:2px;text-transform:uppercase;padding:12px 30px;border-radius:4px;cursor:pointer;transition:all .25s;margin-top:14px}
+.btn-secondary:hover{background:var(--accent-dim);border-color:var(--accent)}
+
+/* ═══════════════════ CART SLIDE ═══════════════════ */
+.cart-overlay{position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:200;display:none;opacity:0;transition:opacity .3s}
+.cart-overlay.open{display:block;opacity:1}
+.cart-panel{position:fixed;top:0;right:-420px;width:400px;max-width:90vw;height:100%;background:#141414;border-left:1px solid rgba(200,168,110,.1);z-index:201;transition:right .35s cubic-bezier(.25,.46,.45,.94);display:flex;flex-direction:column}
+.cart-panel.open{right:0}
+.cart-header{display:flex;justify-content:space-between;align-items:center;padding:28px 24px;border-bottom:1px solid rgba(200,168,110,.1)}
+.cart-header h3{font-family:'Cormorant Garamond',serif;font-size:24px;font-weight:300;color:var(--white)}
+.cart-close{background:none;border:none;color:var(--text-dim);font-size:22px;cursor:pointer;transition:color .3s}
+.cart-close:hover{color:var(--accent)}
+.cart-items{flex:1;overflow-y:auto;padding:20px 24px}
+.cart-item{display:flex;gap:16px;padding:18px 0;border-bottom:1px solid rgba(200,168,110,.06);align-items:center}
+.cart-item-img{width:72px;height:72px;background:#1a1815;border-radius:4px;flex-shrink:0;overflow:hidden}
+.cart-item-img img{width:100%;height:100%;object-fit:cover}
+.cart-item-info{flex:1;min-width:0}
+.cart-item-info h4{font-family:'Cormorant Garamond',serif;font-size:17px;font-weight:300;color:var(--white);margin-bottom:4px}
+.cart-item-info .size-tag{font-size:10px;color:var(--text-dim);letter-spacing:1px;text-transform:uppercase}
+.cart-item-price{font-size:14px;color:var(--accent);font-weight:400;white-space:nowrap}
+.qty-control{display:flex;align-items:center;gap:8px;margin-top:8px}
+.qty-btn{width:26px;height:26px;border:1px solid rgba(200,168,110,.2);background:transparent;color:var(--text-dim);font-size:14px;cursor:pointer;border-radius:4px;transition:all .2s;display:flex;align-items:center;justify-content:center}
+.qty-btn:hover{border-color:var(--accent);color:var(--accent)}
+.qty-val{font-size:13px;color:var(--white);min-width:18px;text-align:center}
+.cart-remove{background:none;border:none;color:var(--text-dim);font-size:18px;cursor:pointer;transition:color .3s;padding:4px}
+.cart-remove:hover{color:var(--red)}
+.cart-footer{padding:24px;border-top:1px solid rgba(200,168,110,.1)}
+.cart-total-row{display:flex;justify-content:space-between;align-items:center;margin-bottom:20px}
+.cart-total-row span{font-size:12px;color:var(--text-dim);letter-spacing:1px;text-transform:uppercase}
+.cart-total-row strong{font-family:'Cormorant Garamond',serif;font-size:26px;color:var(--white);font-weight:300}
+.cart-empty{text-align:center;padding:80px 24px;color:var(--text-dim);font-size:14px}
+.cart-empty .icon{font-size:40px;margin-bottom:16px;opacity:.4}
+
+/* ═══════════════════ AUTH MODAL ═══════════════════ */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:300;display:none;align-items:center;justify-content:center}
+.modal-overlay.open{display:flex}
+.modal{background:#161616;border:1px solid rgba(200,168,110,.12);border-radius:10px;padding:44px 40px;width:400px;max-width:92vw;position:relative}
+.modal-close{position:absolute;top:16px;right:18px;background:none;border:none;color:var(--text-dim);font-size:22px;cursor:pointer;transition:color .3s}
+.modal-close:hover{color:var(--accent)}
+.modal h2{font-family:'Cormorant Garamond',serif;font-size:32px;font-weight:300;color:var(--white);margin-bottom:8px}
+.modal .sub{font-size:12px;color:var(--text-dim);margin-bottom:28px}
+.form-group{margin-bottom:18px}
+.form-group label{display:block;font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--text-dim);margin-bottom:8px}
+.form-group input{width:100%;background:rgba(255,255,255,.04);border:1px solid rgba(200,168,110,.15);color:var(--text);padding:12px 16px;border-radius:4px;font-size:13px;outline:none;transition:border-color .3s}
+.form-group input:focus{border-color:var(--accent)}
+.form-group input::placeholder{color:var(--text-dim)}
+.modal .btn-primary{width:100%;margin-top:10px}
+.modal-switch{text-align:center;margin-top:20px;font-size:12px;color:var(--text-dim)}
+.modal-switch a{color:var(--accent);cursor:pointer}
+
+/* ═══════════════════ CHECKOUT ═══════════════════ */
+#page-checkout .checkout-wrap{max-width:900px;margin:0 auto;padding:100px 48px 80px;display:grid;grid-template-columns:1.4fr 1fr;gap:60px}
+.checkout-left h2,.checkout-right h2{font-family:'Cormorant Garamond',serif;font-size:28px;font-weight:300;color:var(--white);margin-bottom:24px}
+.checkout-section{margin-bottom:36px}
+.checkout-section h3{font-size:10px;letter-spacing:2.5px;text-transform:uppercase;color:var(--accent);margin-bottom:16px}
+.address-card{border:1px solid rgba(200,168,110,.15);border-radius:6px;padding:16px 18px;cursor:pointer;transition:border-color .3s,background .3s;margin-bottom:10px}
+.address-card:hover,.address-card.selected{border-color:var(--accent);background:var(--accent-dim)}
+.address-card .addr-name{font-size:13px;color:var(--white);font-weight:400;margin-bottom:4px}
+.address-card .addr-detail{font-size:11px;color:var(--text-dim);line-height:1.6}
+.add-address-btn{background:transparent;border:1px dashed rgba(200,168,110,.25);color:var(--text-dim);font-size:11px;letter-spacing:1.5px;text-transform:uppercase;padding:12px;border-radius:6px;cursor:pointer;width:100%;transition:all .25s;margin-top:6px}
+.add-address-btn:hover{border-color:var(--accent);color:var(--accent)}
+
+.payment-option{display:flex;align-items:center;gap:14px;border:1px solid rgba(200,168,110,.15);border-radius:6px;padding:16px 18px;cursor:pointer;transition:border-color .3s,background .3s;margin-bottom:10px}
+.payment-option:hover,.payment-option.selected{border-color:var(--accent);background:var(--accent-dim)}
+.payment-option input[type=radio]{display:none}
+.payment-option .radio-circle{width:20px;height:20px;border:2px solid rgba(200,168,110,.3);border-radius:50%;flex-shrink:0;transition:all .25s;display:flex;align-items:center;justify-content:center}
+.payment-option.selected .radio-circle{border-color:var(--accent);background:var(--accent)}
+.payment-option.selected .radio-circle::after{content:'';width:8px;height:8px;background:#0a0a0a;border-radius:50%}
+.payment-option .pay-label{font-size:13px;color:var(--white)}
+.payment-option .pay-sub{font-size:10px;color:var(--text-dim);margin-top:2px}
+
+/* Order summary */
+.checkout-right{position:sticky;top:100px}
+.summary-item{display:flex;justify-content:space-between;padding:12px 0;border-bottom:1px solid rgba(200,168,110,.06);align-items:center}
+.summary-item .si-left{display:flex;align-items:center;gap:12px}
+.summary-item .si-img{width:48px;height:48px;background:#1a1815;border-radius:4px;flex-shrink:0;overflow:hidden}
+.summary-item .si-img img{width:100%;height:100%;object-fit:cover}
+.summary-item .si-name{font-size:13px;color:var(--white)}
+.summary-item .si-size{font-size:10px;color:var(--text-dim);text-transform:uppercase;letter-spacing:1px}
+.summary-item .si-price{font-size:14px;color:var(--accent)}
+.summary-divider{border:none;border-top:1px solid rgba(200,168,110,.1);margin:18px 0}
+.summary-total{display:flex;justify-content:space-between;align-items:center}
+.summary-total span{font-size:11px;letter-spacing:2px;text-transform:uppercase;color:var(--text-dim)}
+.summary-total strong{font-family:'Cormorant Garamond',serif;font-size:26px;color:var(--white);font-weight:300}
+
+/* ═══════════════════ ORDERS PAGE ═══════════════════ */
+#page-orders .orders-wrap{max-width:800px;margin:0 auto;padding:100px 48px 80px}
+#page-orders h1{font-family:'Cormorant Garamond',serif;font-size:42px;font-weight:300;color:var(--white);margin-bottom:40px}
+.order-card{background:var(--bg-card);border:1px solid rgba(200,168,110,.08);border-radius:6px;padding:22px 24px;margin-bottom:16px}
+.order-card-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;flex-wrap:wrap;gap:8px}
+.order-card-header .order-id{font-family:'Cormorant Garamond',serif;font-size:20px;color:var(--white);font-weight:300}
+.status-badge{font-size:9px;letter-spacing:1.5px;text-transform:uppercase;padding:4px 10px;border-radius:12px;font-weight:500}
+.status-pending{background:rgba(200,168,110,.15);color:var(--accent)}
+.status-processing{background:rgba(85,196,122,.15);color:var(--green)}
+.status-shipped{background:rgba(85,140,206,.15);color:#558cce}
+.status-delivered{background:rgba(85,196,122,.15);color:var(--green)}
+.status-cancelled{background:rgba(224,85,85,.15);color:var(--red)}
+.order-card .order-meta{font-size:11px;color:var(--text-dim);margin-bottom:12px}
+.order-card .order-items-list{font-size:12px;color:var(--text-dim);line-height:1.8}
+.order-card .order-total{margin-top:12px;font-size:15px;color:var(--accent);text-align:right}
+.order-card .order-pay{font-size:10px;color:var(--text-dim);text-align:right;text-transform:uppercase;letter-spacing:1px}
+
+/* ═══════════════════ FOOTER ═══════════════════ */
+footer{padding:60px 48px 30px;border-top:1px solid rgba(200,168,110,.08);margin-top:40px}
+.footer-top{display:grid;grid-template-columns:2fr 1fr 1fr 1fr;gap:50px;padding-bottom:48px}
+.footer-brand .nav-logo{display:block;margin-bottom:16px;font-family:'Cormorant Garamond',serif;font-size:22px;font-weight:300;letter-spacing:8px;color:var(--white)}
+.footer-brand p{font-size:12px;color:var(--text-dim);line-height:1.9;max-width:260px}
+.footer-col h4{font-size:10px;letter-spacing:3px;text-transform:uppercase;color:var(--accent);margin-bottom:20px}
+.footer-col ul{list-style:none}
+.footer-col ul li{margin-bottom:10px}
+.footer-col ul a{color:var(--text-dim);font-size:13px;transition:color .3s;cursor:pointer}
+.footer-col ul a:hover{color:var(--white)}
+.footer-bottom{border-top:1px solid rgba(200,168,110,.08);padding-top:28px;display:flex;justify-content:space-between;align-items:center}
+.footer-bottom p{font-size:11px;color:var(--text-dim)}
+.social-links{display:flex;gap:24px}
+.social-links a{color:var(--text-dim);font-size:11px;letter-spacing:1px;transition:color .3s;cursor:pointer}
+.social-links a:hover{color:var(--accent)}
+
+/* ═══════════════════ ADD ADDRESS MODAL ═══════════════════ */
+#addr-modal .form-row{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+
+/* ═══════════════════ RESPONSIVE ═══════════════════ */
+@media(max-width:768px){
+  nav{padding:18px 20px}
+  .nav-links{gap:16px}
+  #page-home .hero{padding:0 20px 80px}
+  .products-section{padding:60px 20px}
+  #page-product .product-detail{grid-template-columns:1fr;gap:40px;padding:60px 20px}
+  #page-checkout .checkout-wrap{grid-template-columns:1fr;padding:60px 20px}
+  .checkout-right{position:static}
+  .footer-top{grid-template-columns:1fr 1fr;gap:30px}
+  footer{padding:40px 20px 24px}
+  #page-orders .orders-wrap{padding:60px 20px}
+  .modal{padding:32px 24px}
+}
+@media(max-width:480px){
+  .nav-links a:not(.nav-cart):not(.nav-auth){display:none}
+  .product-grid{grid-template-columns:1fr 1fr}
+  .product-card-img{height:200px}
+  .footer-top{grid-template-columns:1fr}
+  #addr-modal .form-row{grid-template-columns:1fr}
+}
+</style>
+</head>
+<body>
+
+<!-- ─── TOAST CONTAINER ─── -->
+<div id="toast-wrap"></div>
+
+<!-- ─── NAV ─── -->
+<nav>
+  <div class="nav-logo" onclick="navigate('home')">DEODHA</div>
+  <div class="nav-links">
+    <a onclick="navigate('home')" data-page="home" class="active">Home</a>
+    <a onclick="navigateProducts(null)" data-page="products">Shop</a>
+    <a onclick="navigateProducts('essentials')" data-page="products">Essentials</a>
+    <a onclick="navigateProducts('outerwear')" data-page="products">Outerwear</a>
+    <div class="nav-cart" onclick="toggleCart()">
+      Cart <span class="cart-badge" id="cart-badge">0</span>
+    </div>
+    <div class="nav-auth" id="nav-auth" onclick="openAuth()">Sign In</div>
+  </div>
+</nav>
+
+<!-- ════════════════════════ HOME PAGE ════════════════════════ -->
+<div id="page-home" class="page active">
+  <!-- Hero -->
+  <section class="hero">
+    <div class="hero-bg"></div>
+    <div class="geo geo-1"></div>
+    <div class="geo geo-2"></div>
+    <div class="hero-content">
+      <div class="hero-tag">New Collection — SS 2026</div>
+      <h1>Wear the<br/><em>Unseen</em></h1>
+      <p class="hero-sub">Clothing designed for those who move quietly but leave a lasting impression. Refined streetwear, built on intention.</p>
+      <div class="hero-cta" onclick="navigateProducts(null)">Explore Collection →</div>
+    </div>
+  </section>
+  <!-- Marquee -->
+  <div class="marquee-wrap">
+    <div class="marquee">
+      <span>Streetwear <span class="dot">◆</span> Minimalism <span class="dot">◆</span> Timeless Design <span class="dot">◆</span> Premium Fabrics <span class="dot">◆</span> Conscious Fashion <span class="dot">◆</span> Streetwear <span class="dot">◆</span> Minimalism <span class="dot">◆</span> Timeless Design <span class="dot">◆</span> Premium Fabrics <span class="dot">◆</span> Conscious Fashion <span class="dot">◆</span></span>
+    </div>
+  </div>
+  <!-- Featured Products -->
+  <section class="products-section">
+    <div class="section-header">
+      <h2>Featured<br/>Drops</h2>
+      <p>Our hand-picked essentials — designed to anchor any outfit.</p>
+    </div>
+    <div class="product-grid" id="featured-grid"></div>
+  </section>
+  <!-- Footer -->
+  <footer>
+    <div class="footer-top">
+      <div class="footer-brand">
+        <div class="nav-logo">DEODHA</div>
+        <p>Quiet luxury for the modern individual. Refined streetwear rooted in intention and craft.</p>
+      </div>
+      <div class="footer-col"><h4>Shop</h4><ul><li><a onclick="navigateProducts(null)">New Arrivals</a></li><li><a onclick="navigateProducts('essentials')">Essentials</a></li><li><a onclick="navigateProducts('outerwear')">Outerwear</a></li><li><a onclick="navigateProducts('accessories')">Accessories</a></li></ul></div>
+      <div class="footer-col"><h4>Help</h4><ul><li><a>Shipping & Returns</a></li><li><a>Size Guide</a></li><li><a>FAQ</a></li><li><a>Contact Us</a></li></ul></div>
+      <div class="footer-col"><h4>Company</h4><ul><li><a>Our Story</a></li><li><a>Sustainability</a></li><li><a>Careers</a></li><li><a>Press</a></li></ul></div>
+    </div>
+    <div class="footer-bottom">
+      <p>© 2026 DEODHA. All rights reserved.</p>
+      <div class="social-links"><a>Instagram</a><a>Twitter</a><a>Pinterest</a></div>
+    </div>
+  </footer>
+</div>
+
+<!-- ════════════════════════ PRODUCTS PAGE ════════════════════════ -->
+<div id="page-products" class="page">
+  <section class="products-section">
+    <div class="section-header">
+      <h2 id="products-title">All Products</h2>
+    </div>
+    <div class="filter-bar">
+      <button class="filter-btn active" onclick="filterProducts(null, this)">All</button>
+      <button class="filter-btn" onclick="filterProducts('essentials', this)">Essentials</button>
+      <button class="filter-btn" onclick="filterProducts('outerwear', this)">Outerwear</button>
+      <button class="filter-btn" onclick="filterProducts('bottoms', this)">Bottoms</button>
+      <button class="filter-btn" onclick="filterProducts('accessories', this)">Accessories</button>
+      <button class="filter-btn" onclick="filterProducts('footwear', this)">Footwear</button>
+      <input class="search-input" type="text" placeholder="Search products…" id="search-input" oninput="searchProducts(this.value)"/>
+    </div>
+    <div class="product-grid" id="products-grid"></div>
+  </section>
+  <footer>
+    <div class="footer-bottom" style="border-top:none">
+      <p>© 2026 DEODHA. All rights reserved.</p>
+      <div class="social-links"><a>Instagram</a><a>Twitter</a><a>Pinterest</a></div>
+    </div>
+  </footer>
+</div>
+
+<!-- ════════════════════════ PRODUCT DETAIL PAGE ════════════════════════ -->
+<div id="page-product" class="page">
+  <div class="product-detail">
+    <div class="product-detail-img">
+      <div class="shape"></div>
+      <div class="badge" id="detail-badge" style="display:none">Bestseller</div>
+    </div>
+    <div class="product-detail-info">
+      <div class="tag" id="detail-cat"></div>
+      <h1 id="detail-name"></h1>
+      <div class="price-row">
+        <span class="price" id="detail-price"></span>
+        <span class="price-old" id="detail-price-old"></span>
+      </div>
+      <p class="desc" id="detail-desc"></p>
+      <div class="label">Select Size</div>
+      <div class="size-row" id="detail-sizes"></div>
+      <button class="btn-primary" id="btn-add-cart" onclick="addToCart()" disabled>Add to Bag</button>
+      <br/>
+      <button class="btn-secondary" onclick="navigate('home')">← Continue Shopping</button>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════════════════ CHECKOUT PAGE ════════════════════════ -->
+<div id="page-checkout" class="page">
+  <div class="checkout-wrap">
+    <div class="checkout-left">
+      <h2>Checkout</h2>
+      <!-- Delivery Address -->
+      <div class="checkout-section">
+        <h3>Delivery Address</h3>
+        <div id="address-list"></div>
+        <button class="add-address-btn" onclick="openAddAddress()">+ Add New Address</button>
+      </div>
+      <!-- Payment -->
+      <div class="checkout-section">
+        <h3>Payment Method</h3>
+        <div class="payment-option selected" id="pay-cod" onclick="selectPayment('cod')">
+          <div class="radio-circle"></div>
+          <div><div class="pay-label">Cash on Delivery</div><div class="pay-sub">Pay when your order arrives</div></div>
+        </div>
+        <div class="payment-option" id="pay-razorpay" onclick="selectPayment('razorpay')">
+          <div class="radio-circle"></div>
+          <div><div class="pay-label">Card / Google Pay / PhonePe / UPI</div><div class="pay-sub">Secure payment via Razorpay</div></div>
+        </div>
+      </div>
+      <button class="btn-primary" id="btn-place-order" onclick="placeOrder()" style="width:100%;justify-content:center">Place Order</button>
+    </div>
+    <!-- Order Summary -->
+    <div class="checkout-right">
+      <h2>Order Summary</h2>
+      <div id="checkout-summary"></div>
+      <hr class="summary-divider"/>
+      <div class="summary-total">
+        <span>Total</span>
+        <strong id="checkout-total">₹0</strong>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════════════════ ORDERS PAGE ════════════════════════ -->
+<div id="page-orders" class="page">
+  <div class="orders-wrap">
+    <h1>My Orders</h1>
+    <div id="orders-list"></div>
+  </div>
+</div>
+
+<!-- ════════════════════════ CART SLIDE PANEL ════════════════════════ -->
+<div class="cart-overlay" id="cart-overlay" onclick="toggleCart()"></div>
+<div class="cart-panel" id="cart-panel">
+  <div class="cart-header">
+    <h3>Your Bag</h3>
+    <button class="cart-close" onclick="toggleCart()">×</button>
+  </div>
+  <div class="cart-items" id="cart-items"></div>
+  <div class="cart-footer" id="cart-footer" style="display:none">
+    <div class="cart-total-row">
+      <span>Total</span>
+      <strong id="cart-total">₹0</strong>
+    </div>
+    <button class="btn-primary" style="width:100%;justify-content:center" onclick="goToCheckout()">Proceed to Checkout</button>
+  </div>
+</div>
+
+<!-- ════════════════════════ AUTH MODAL ════════════════════════ -->
+<div class="modal-overlay" id="auth-modal">
+  <div class="modal">
+    <button class="modal-close" onclick="closeAuth()">×</button>
+    <!-- Login Form -->
+    <div id="login-form">
+      <h2>Welcome Back</h2>
+      <p class="sub">Sign in to continue shopping</p>
+      <div class="form-group"><label>Email</label><input type="email" id="login-email" placeholder="you@email.com"/></div>
+      <div class="form-group"><label>Password</label><input type="password" id="login-pass" placeholder="Password"/></div>
+      <button class="btn-primary" onclick="doLogin()" style="width:100%;justify-content:center">Sign In</button>
+      <div class="modal-switch">Don't have an account? <a onclick="switchAuthForm('register')">Sign Up</a></div>
+    </div>
+    <!-- Register Form -->
+    <div id="register-form" style="display:none">
+      <h2>Create Account</h2>
+      <p class="sub">Join the DEODHA family</p>
+      <div class="form-group"><label>Full Name</label><input type="text" id="reg-name" placeholder="Your name"/></div>
+      <div class="form-group"><label>Email</label><input type="email" id="reg-email" placeholder="you@email.com"/></div>
+      <div class="form-group"><label>Phone (optional)</label><input type="tel" id="reg-phone" placeholder="+91 XXXXXXXXXX"/></div>
+      <div class="form-group"><label>Password</label><input type="password" id="reg-pass" placeholder="Create password"/></div>
+      <button class="btn-primary" onclick="doRegister()" style="width:100%;justify-content:center">Create Account</button>
+      <div class="modal-switch">Already have an account? <a onclick="switchAuthForm('login')">Sign In</a></div>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════════════════ ADD ADDRESS MODAL ════════════════════════ -->
+<div class="modal-overlay" id="addr-modal">
+  <div class="modal">
+    <button class="modal-close" onclick="closeAddAddress()">×</button>
+    <h2>New Address</h2>
+    <p class="sub">Delivery address details</p>
+    <div class="form-group"><label>Name</label><input type="text" id="addr-name" placeholder="e.g. Home"/></div>
+    <div class="form-group"><label>Street Address</label><input type="text" id="addr-street" placeholder="123 Main Street, Apt 4"/></div>
+    <div class="form-row">
+      <div class="form-group"><label>City</label><input type="text" id="addr-city" placeholder="Mumbai"/></div>
+      <div class="form-group"><label>State</label><input type="text" id="addr-state" placeholder="Maharashtra"/></div>
+    </div>
+    <div class="form-row">
+      <div class="form-group"><label>Pincode</label><input type="text" id="addr-pin" placeholder="400001"/></div>
+      <div class="form-group"><label>Phone</label><input type="tel" id="addr-phone" placeholder="+91 XXXXXXXXXX"/></div>
+    </div>
+    <button class="btn-primary" onclick="saveAddress()" style="width:100%;justify-content:center">Save Address</button>
+  </div>
+</div>
+
+<!-- ═══════════════════ RAZORPAY SCRIPT (loaded dynamically) ═══════════════════ -->
+
+<script>
+// ═══════════════════════════════════════════════════════════════════
+// APP STATE
+// ═══════════════════════════════════════════════════════════════════
+const API = '/api';
+
+// ─── PRODUCT IMAGE MAP (Unsplash — free, no attribution required) ──
+const PRODUCT_IMAGES = {
+  'classic-white-tee':          'https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?w=600&q=80',
+  'noir-crew-neck':             'https://images.unsplash.com/photo-1509631179647-0177331693ae?w=600&q=80',
+  'noir-oversized-jacket':      'https://images.unsplash.com/photo-1576131222689-170a700c01f1?w=600&q=80',
+  'olive-utility-jacket':       'https://images.unsplash.com/photo-1584249824804-a09a4af7502f?w=600&q=80',
+  'charcoal-joggers':           'https://images.unsplash.com/photo-1552902865-b72c031ac5ea?w=600&q=80',
+  'black-wide-trousers':        'https://images.unsplash.com/photo-1554260570-83dc2f46ef72?w=600&q=80',
+  'minimal-cap':                'https://images.unsplash.com/photo-1588602119987-3c66339a0e85?w=600&q=80',
+  'canvas-tote':                'https://images.unsplash.com/photo-1548036328-c9fa89d128fa?w=600&q=80',
+  'urban-sneakers':             'https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=600&q=80',
+  'black-boots':                'https://images.unsplash.com/photo-1491553895911-0055eca6402d?w=600&q=80'
+};
+// fallback for any product not in the map
+const DEFAULT_IMG = 'https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=600&q=80';
+
+function getImg(slug, images) { 
+  // If product has images in database, use the first one
+  if (images && Array.isArray(images) && images.length > 0) {
+    return images[0];
+  }
+  // Fallback to hardcoded map for original products
+  if (!slug) return DEFAULT_IMG;
+  return PRODUCT_IMAGES[slug] || DEFAULT_IMG; 
+}
+
+// Add error handler for images
+function handleImageError(img) {
+  img.onerror = null; // Prevent infinite loop
+  img.src = DEFAULT_IMG;
+}
+
+let currentUser  = null;
+let currentToken = null;
+let cartData     = { cart: [], total: '0', itemCount: 0 };
+let currentProduct = null;
+let selectedSize   = null;
+let selectedPayment = 'cod';
+let selectedAddress = null;
+let checkoutCart    = [];
+
+// ─── INIT ───────────────────────────────────────────────────────
+window.addEventListener('DOMContentLoaded', async () => {
+  // restore token from sessionStorage
+  const saved = sessionStorage.getItem('deodha_token');
+  if (saved) {
+    currentToken = saved;
+    try {
+      const r = await fetch(`${API}/auth/profile`, { headers: authHeaders() });
+      if (r.ok) {
+        const data = await r.json();
+        currentUser = data.user;
+        updateNavAuth();
+      }
+    } catch(e) {}
+  }
+  loadFeaturedProducts();
+  refreshCart();
+});
+
+// ═══════════════════════════════════════════════════════════════════
+// HELPERS
+// ═══════════════════════════════════════════════════════════════════
+function authHeaders() {
+  return { 'Content-Type': 'application/json', Authorization: `Bearer ${currentToken}` };
+}
+
+function toast(msg, type = '') {
+  const w = document.getElementById('toast-wrap');
+  const t = document.createElement('div');
+  t.className = 'toast ' + type;
+  t.textContent = msg;
+  w.appendChild(t);
+  setTimeout(() => t.remove(), 3200);
+}
+
+function fmt(n) { return '₹' + Number(n).toLocaleString('en-IN'); }
+
+// ─── HTML ESCAPING (XSS Prevention) ─────────────────────────────────
+function escapeHtml(text) {
+  if (!text) return '';
+  const div = document.createElement('div');
+  div.textContent = text;
+  return div.innerHTML;
+}
+
+function escapeAttr(text) {
+  if (!text) return '';
+  return String(text)
+    .replace(/&/g, '&amp;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#x27;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;');
+}
+
+// ═══════════════════════════════════════════════════════════════════
+// NAVIGATION
+// ═══════════════════════════════════════════════════════════════════
+function navigate(page) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.getElementById('page-' + page).classList.add('active');
+  window.scrollTo(0, 0);
+
+  if (page === 'checkout') { loadCheckout(); }
+  if (page === 'orders')   { loadOrders(); }
+}
+
+function navigateProducts(category) {
+  navigate('products');
+  filterProducts(category);
+}
+
+// ═══════════════════════════════════════════════════════════════════
+// PRODUCTS
+// ═══════════════════════════════════════════════════════════════════
+async function loadFeaturedProducts() {
+  const r = await fetch(`${API}/products?featured=true&limit=4`);
+  const data = await r.json();
+  renderProducts(data.products, 'featured-grid');
+}
+
+async function loadProducts(category = null, search = '') {
+  let url = `${API}/products?limit=20`;
+  if (category) url += `&category=${category}`;
+  if (search)   url += `&search=${encodeURIComponent(search)}`;
+  const r = await fetch(url);
+  const data = await r.json();
+  renderProducts(data.products, 'products-grid');
+  document.getElementById('products-title').textContent = category
+    ? category.charAt(0).toUpperCase() + category.slice(1)
+    : 'All Products';
+}
+
+function renderProducts(products, gridId) {
+  const grid = document.getElementById(gridId);
+  grid.innerHTML = products.map(p => {
+    const imgUrl = getImg(p.slug, p.images);
+    const escapedSlug = escapeAttr(p.slug);
+    const escapedName = escapeAttr(p.name);
+    const escapedCategory = escapeHtml(p.category_name || '');
+    return `
+    <div class="product-card" onclick="openProduct('${escapedSlug}')">
+      <div class="product-card-img">
+        <img src="${escapeAttr(imgUrl)}" alt="${escapedName}" loading="lazy" onerror="this.onerror=null; this.src='${escapeAttr(DEFAULT_IMG)}'"/>
+        <div class="shape"></div>
+        ${p.is_featured ? '<div class="badge">Featured</div>' : ''}
+      </div>
+      <div class="product-card-body">
+        <div class="cat-label">${escapedCategory}</div>
+        <h3>${escapeHtml(p.name)}</h3>
+        <div class="price-row">
+          <span class="price">${fmt(p.sale_price || p.price)}</span>
+          ${p.sale_price ? `<span class="price-old">${fmt(p.price)}</span>` : ''}
+        </div>
+      </div>
+    </div>
+  `;
+  }).join('');
+}
+
+function filterProducts(cat, btn) {
+  if (btn) {
+    document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+  }
+  document.getElementById('search-input').value = '';
+  loadProducts(cat);
+}
+
+function searchProducts(val) {
+  document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+  document.querySelector('.filter-btn').classList.add('active');
+  loadProducts(null, val);
+}
+
+// ─── PRODUCT DETAIL ─────────────────────────────────────────────
+async function openProduct(slug) {
+  const r = await fetch(`${API}/products/${slug}`);
+  if (!r.ok) return toast('Product not found', 'error');
+  const { product } = await r.json();
+  currentProduct = product;
+  selectedSize = null;
+
+  navigate('product');
+
+  // inject real product photo
+  const detailImgBox = document.querySelector('#page-product .product-detail-img');
+  if (!detailImgBox) return;
+  
+  let imgEl = document.getElementById('detail-img');
+  if (!imgEl) { 
+    imgEl = document.createElement('img'); 
+    imgEl.id = 'detail-img';
+    imgEl.style.position = 'absolute';
+    imgEl.style.inset = '0';
+    imgEl.style.width = '100%';
+    imgEl.style.height = '100%';
+    imgEl.style.objectFit = 'cover';
+    imgEl.style.zIndex = '1';
+    const firstChild = detailImgBox.firstChild;
+    if (firstChild) {
+      detailImgBox.insertBefore(imgEl, firstChild);
+    } else {
+      detailImgBox.appendChild(imgEl);
+    }
+  }
+  const imgUrl = getImg(product.slug, product.images);
+  imgEl.src = escapeAttr(imgUrl);
+  imgEl.alt = escapeAttr(product.name);
+  imgEl.style.display = 'block';
+  imgEl.onerror = function() { 
+    this.onerror = null; 
+    this.src = DEFAULT_IMG; 
+  };
+
+  document.getElementById('detail-cat').textContent   = product.category_name || '';
+  document.getElementById('detail-name').textContent  = product.name;
+  document.getElementById('detail-price').textContent = fmt(product.sale_price || product.price);
+  document.getElementById('detail-price-old').style.display = product.sale_price ? 'inline' : 'none';
+  document.getElementById('detail-price-old').textContent   = product.sale_price ? fmt(product.price) : '';
+  document.getElementById('detail-desc').textContent  = product.description || '';
+  document.getElementById('detail-badge').style.display = product.is_featured ? 'block' : 'none';
+  document.getElementById('btn-add-cart').disabled = true;
+
+  // sizes
+  const sizes = Array.isArray(product.sizes) ? product.sizes : [];
+  document.getElementById('detail-sizes').innerHTML = sizes.map(s => {
+    const escapedSize = escapeAttr(s);
+    return `<button class="size-btn" onclick="pickSize('${escapedSize}', this)">${escapeHtml(s)}</button>`;
+  }).join('');
+}
+
+function pickSize(size, btn) {
+  document.querySelectorAll('#detail-sizes .size-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  selectedSize = size;
+  document.getElementById('btn-add-cart').disabled = false;
+}
+
+// ═══════════════════════════════════════════════════════════════════
+// CART
+// ═══════════════════════════════════════════════════════════════════
+async function refreshCart() {
+  if (!currentToken) { cartData = { cart: [], total: '0', itemCount: 0 }; updateCartBadge(); return; }
+  const r = await fetch(`${API}/cart`, { headers: authHeaders() });
+  if (r.ok) { cartData = await r.json(); }
+  updateCartBadge();
+}
+
+function updateCartBadge() {
+  document.getElementById('cart-badge').textContent = cartData.itemCount || 0;
+}
+
+async function addToCart() {
+  if (!currentToken) return openAuth();
+  if (!selectedSize) return toast('Please select a size', 'error');
+
+  const r = await fetch(`${API}/cart`, {
+    method: 'POST',
+    headers: authHeaders(),
+    body: JSON.stringify({ product_id: currentProduct.id, size: selectedSize, quantity: 1 })
+  });
+  if (r.ok) { toast('Added to bag ✓', 'success'); await refreshCart(); }
+  else { const e = await r.json(); toast(e.error, 'error'); }
+}
+
+function toggleCart() {
+  document.getElementById('cart-overlay').classList.toggle('open');
+  document.getElementById('cart-panel').classList.toggle('open');
+  renderCartPanel();
+}
+
+function renderCartPanel() {
+  const container = document.getElementById('cart-items');
+  const footer    = document.getElementById('cart-footer');
+
+  if (!cartData.cart.length) {
+    container.innerHTML = `<div class="cart-empty"><div class="icon">🛍</div>Your bag is empty.<br/><br/><button class="btn-secondary" onclick="toggleCart();navigateProducts(null)">Browse Products</button></div>`;
+    footer.style.display = 'none';
+    return;
+  }
+
+  footer.style.display = 'block';
+  document.getElementById('cart-total').textContent = fmt(cartData.total);
+
+  container.innerHTML = cartData.cart.map(item => {
+    const imgUrl = getImg(item.slug || '');
+    const escapedName = escapeAttr(item.name);
+    const escapedSize = escapeAttr(item.size);
+    return `
+    <div class="cart-item" data-id="${item.id}">
+      <div class="cart-item-img"><img src="${escapeAttr(imgUrl)}" alt="${escapedName}" loading="lazy" onerror="this.onerror=null; this.src='${escapeAttr(DEFAULT_IMG)}'"/></div>
+      <div class="cart-item-info">
+        <h4>${escapeHtml(item.name)}</h4>
+        <div class="size-tag">Size: ${escapeHtml(item.size)}</div>
+        <div class="qty-control">
+          <button class="qty-btn" onclick="changeQty(${item.id}, ${item.quantity - 1})">−</button>
+          <span class="qty-val">${item.quantity}</span>
+          <button class="qty-btn" onclick="changeQty(${item.id}, ${item.quantity + 1})">+</button>
+        </div>
+      </div>
+      <div style="display:flex;flex-direction:column;align-items:flex-end;gap:8px">
+        <span class="cart-item-price">${fmt(item.effectivePrice * item.quantity)}</span>
+        <button class="cart-remove" onclick="removeCartItem(${item.id})">×</button>
+      </div>
+    </div>
+  `;
+  }).join('');
+}
+
+async function changeQty(cartId, newQty) {
+  if (newQty < 1) { await removeCartItem(cartId); return; }
+  await fetch(`${API}/cart/${cartId}`, { method: 'PUT', headers: authHeaders(), body: JSON.stringify({ quantity: newQty }) });
+  await refreshCart();
+  renderCartPanel();
+}
+
+async function removeCartItem(cartId) {
+  await fetch(`${API}/cart/${cartId}`, { method: 'DELETE', headers: authHeaders() });
+  await refreshCart();
+  renderCartPanel();
+}
+
+async function goToCheckout() {
+  if (!currentToken) { closeCart(); return openAuth(); }
+  toggleCart();
+  navigate('checkout');
+}
+
+// ═══════════════════════════════════════════════════════════════════
+// AUTH
+// ═══════════════════════════════════════════════════════════════════
+function openAuth()  { document.getElementById('auth-modal').classList.add('open'); }
+function closeAuth() { document.getElementById('auth-modal').classList.remove('open'); }
+
+function switchAuthForm(which) {
+  document.getElementById('login-form').style.display    = which === 'login'    ? 'block' : 'none';
+  document.getElementById('register-form').style.display = which === 'register' ? 'block' : 'none';
+}
+
+async function doLogin() {
+  const email = document.getElementById('login-email').value.trim();
+  const pass  = document.getElementById('login-pass').value;
+  if (!email || !pass) return toast('Fill in all fields', 'error');
+
+  const r = await fetch(`${API}/auth/login`, {
+    method: 'POST', headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ email, password: pass })
+  });
+  const data = await r.json();
+  if (r.ok) {
+    currentToken = data.token;
+    currentUser  = data.user;
+    sessionStorage.setItem('deodha_token', currentToken);
+    updateNavAuth();
+    closeAuth();
+    toast('Welcome back, ' + data.user.name + '!', 'success');
+    await refreshCart();
+  } else {
+    toast(data.error, 'error');
+  }
+}
+
+async function doRegister() {
+  const name  = document.getElementById('reg-name').value.trim();
+  const email = document.getElementById('reg-email').value.trim();
+  const phone = document.getElementById('reg-phone').value.trim();
+  const pass  = document.getElementById('reg-pass').value;
+  if (!name || !email || !pass) return toast('Fill in all required fields', 'error');
+
+  const r = await fetch(`${API}/auth/register`, {
+    method: 'POST', headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ name, email, phone, password: pass })
+  });
+  const data = await r.json();
+  if (r.ok) {
+    currentToken = data.token;
+    currentUser  = data.user;
+    sessionStorage.setItem('deodha_token', currentToken);
+    updateNavAuth();
+    closeAuth();
+    toast('Account created! Welcome, ' + data.user.name + '!', 'success');
+    await refreshCart();
+  } else {
+    toast(data.error, 'error');
+  }
+}
+
+function updateNavAuth() {
+  const el = document.getElementById('nav-auth');
+  if (currentUser) {
+    el.textContent = currentUser.name;
+    el.onclick = () => { navigate('orders'); };
+  } else {
+    el.textContent = 'Sign In';
+    el.onclick = openAuth;
+  }
+}
+
+// ═══════════════════════════════════════════════════════════════════
+// CHECKOUT
+// ═══════════════════════════════════════════════════════════════════
+async function loadCheckout() {
+  // load addresses
+  const r = await fetch(`${API}/addresses`, { headers: authHeaders() });
+  const data = await r.ok ? await r.json() : { addresses: [] };
+  const addresses = data.addresses || [];
+  selectedAddress = addresses.find(a => a.is_default)?.id || (addresses[0]?.id || null);
+
+  document.getElementById('address-list').innerHTML = addresses.map(a => {
+    const escapedName = escapeHtml(a.name || 'Address');
+    const escapedStreet = escapeHtml(a.street);
+    const escapedCity = escapeHtml(a.city);
+    const escapedState = escapeHtml(a.state);
+    const escapedPincode = escapeHtml(a.pincode);
+    const escapedPhone = escapeHtml(a.phone || '');
+    return `
+    <div class="address-card ${a.id === selectedAddress ? 'selected' : ''}" onclick="selectAddress(${a.id}, this)">
+      <div class="addr-name">${escapedName}</div>
+      <div class="addr-detail">${escapedStreet}, ${escapedCity}, ${escapedState} ${escapedPincode}${a.phone ? ' · ' + escapedPhone : ''}</div>
+    </div>
+  `;
+  }).join('');
+
+  // order summary
+  checkoutCart = cartData.cart;
+  document.getElementById('checkout-summary').innerHTML = checkoutCart.map(item => {
+    const imgUrl = getImg(item.slug || '');
+    const escapedName = escapeAttr(item.name);
+    const escapedSize = escapeAttr(item.size);
+    return `
+    <div class="summary-item">
+      <div class="si-left">
+        <div class="si-img"><img src="${escapeAttr(imgUrl)}" alt="${escapedName}" loading="lazy" onerror="this.onerror=null; this.src='${escapeAttr(DEFAULT_IMG)}'"/></div>
+        <div><div class="si-name">${escapeHtml(item.name)} <span style="color:var(--text-dim);font-size:10px">×${item.quantity}</span></div><div class="si-size">Size ${escapeHtml(item.size)}</div></div>
+      </div>
+      <div class="si-price">${fmt(item.effectivePrice * item.quantity)}</div>
+    </div>
+  `;
+  }).join('');
+  document.getElementById('checkout-total').textContent = fmt(cartData.total);
+}
+
+function selectAddress(id, el) {
+  selectedAddress = id;
+  document.querySelectorAll('.address-card').forEach(c => c.classList.remove('selected'));
+  el.classList.add('selected');
+}
+
+function selectPayment(method) {
+  selectedPayment = method;
+  document.getElementById('pay-cod').classList.toggle('selected', method === 'cod');
+  document.getElementById('pay-razorpay').classList.toggle('selected', method === 'razorpay');
+}
+
+async function placeOrder() {
+  if (!selectedAddress) return toast('Please select a delivery address', 'error');
+  if (!checkoutCart.length) return toast('Your cart is empty', 'error');
+
+  document.getElementById('btn-place-order').disabled = true;
+
+  if (selectedPayment === 'cod') {
+    const r = await fetch(`${API}/orders/cod`, {
+      method: 'POST', headers: authHeaders(),
+      body: JSON.stringify({ address_id: selectedAddress })
+    });
+    const data = await r.json();
+    if (r.ok) {
+      toast('Order placed successfully! 🎉', 'success');
+      await refreshCart();
+      setTimeout(() => navigate('orders'), 1200);
+    } else {
+      toast(data.error, 'error');
+    }
+  } else {
+    // Razorpay flow
+    const r = await fetch(`${API}/orders/razorpay/create`, {
+      method: 'POST', headers: authHeaders(),
+      body: JSON.stringify({ address_id: selectedAddress })
+    });
+    const data = await r.json();
+    if (!r.ok) { toast(data.error, 'error'); document.getElementById('btn-place-order').disabled = false; return; }
+
+    // Load Razorpay SDK
+    if (!window.Razorpay) {
+      const script = document.createElement('script');
+      script.src = 'https://checkout.razorpay.com/v1/checkout.js';
+      document.head.appendChild(script);
+      await new Promise(res => { script.onload = res; script.onerror = () => { toast('Failed to load payment SDK. Check your internet.', 'error'); res(); }; });
+    }
+
+    if (!window.Razorpay) { document.getElementById('btn-place-order').disabled = false; return; }
+
+    const options = {
+      key:     data.key,
+      amount:  data.amount,
+      currency: data.currency,
+      name:    'DEODHA',
+      description: `Order #${data.orderId}`,
+      order_id: data.razorpayOrderId,
+      handler: async function(response) {
+        // verify
+        const vr = await fetch(`${API}/orders/razorpay/verify`, {
+          method: 'POST', headers: authHeaders(),
+          body: JSON.stringify({
+            razorpay_order_id:  response.razorpay_order_id,
+            razorpay_payment_id: response.razorpay_payment_id,
+            razorpay_signature: response.razorpay_signature,
+            orderId: data.orderId
+          })
+        });
+        if (vr.ok) {
+          toast('Payment successful! 🎉', 'success');
+          await refreshCart();
+          navigate('orders');
+        } else {
+          toast('Payment verification failed', 'error');
+        }
+      },
+      prefill: { name: currentUser?.name || '', email: currentUser?.email || '' },
+      theme: { color: '#c8a86e' }
+    };
+
+    const rzp = new window.Razorpay(options);
+    rzp.open();
+  }
+
+  document.getElementById('btn-place-order').disabled = false;
+}
+
+// ─── ADD ADDRESS MODAL ──────────────────────────────────────────
+function openAddAddress()  { document.getElementById('addr-modal').classList.add('open'); }
+function closeAddAddress() { document.getElementById('addr-modal').classList.remove('open'); }
+
+async function saveAddress() {
+  const street = document.getElementById('addr-street').value.trim();
+  const city   = document.getElementById('addr-city').value.trim();
+  const state  = document.getElementById('addr-state').value.trim();
+  const pin    = document.getElementById('addr-pin').value.trim();
+  if (!street || !city || !state || !pin) return toast('Fill in required fields', 'error');
+
+  const r = await fetch(`${API}/addresses`, {
+    method: 'POST', headers: authHeaders(),
+    body: JSON.stringify({
+      name:    document.getElementById('addr-name').value.trim(),
+      street, city, state, pincode: pin,
+      phone:   document.getElementById('addr-phone').value.trim(),
+      is_default: false
+    })
+  });
+  if (r.ok) {
+    toast('Address saved ✓', 'success');
+    closeAddAddress();
+    loadCheckout();
+  } else {
+    const e = await r.json();
+    toast(e.error, 'error');
+  }
+}
+
+// ═══════════════════════════════════════════════════════════════════
+// ORDERS
+// ═══════════════════════════════════════════════════════════════════
+async function loadOrders() {
+  const r = await fetch(`${API}/orders/my`, { headers: authHeaders() });
+  if (!r.ok) return;
+  const { orders } = await r.json();
+  const container = document.getElementById('orders-list');
+  if (!orders.length) { container.innerHTML = '<p style="color:var(--text-dim);font-size:14px">No orders yet. Start shopping!</p>'; return; }
+  container.innerHTML = orders.map(o => `
+    <div class="order-card">
+      <div class="order-card-header">
+        <span class="order-id">Order #${o.id}</span>
+        <span class="status-badge status-${o.order_status}">${o.order_status}</span>
+      </div>
+      <div class="order-meta">${new Date(o.created_at).toLocaleDateString('en-IN', { year:'numeric', month:'short', day:'numeric' })}</div>
+      <div class="order-items-list">${(o.items||[]).map(i => `${escapeHtml(i.product_name)} (${escapeHtml(i.size)}) ×${i.quantity}`).join(' · ')}</div>
+      <div class="order-pay">${o.payment_method === 'cod' ? 'Cash on Delivery' : 'Paid via Razorpay'} · ${o.payment_status}</div>
+      <div class="order-total">${fmt(o.total)}</div>
+    </div>
+  `).join('');
+}
+</script>
+</body>
+</html>
