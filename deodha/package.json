@@ -5,7 +5,14 @@
   "main": "server.js",
   "scripts": {
     "start": "node server.js",
-    "dev": "npx nodemon server.js"
+    "dev": "npx nodemon server.js",
+    "lint": "eslint src/ --ext .js",
+    "test": "jest",
+    "build": "echo 'Build completed'",
+    "docker:build": "docker build -t deodha-app .",
+    "docker:run": "docker run -p 5000:5000 deodha-app",
+    "docker:compose": "docker-compose up -d",
+    "docker:down": "docker-compose down"
   },
   "dependencies": {
     "bcryptjs": "^2.4.3",
